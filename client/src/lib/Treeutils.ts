@@ -3,6 +3,8 @@
 import { ExtendedTreeItemProps } from "@/types/FileSystemTypes";
 import axios from "axios";
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
 function findParentId(
   tree: ExtendedTreeItemProps[],
   targetId: string
@@ -18,28 +20,24 @@ function findParentId(
 }
 
 const getFile = async (id: string) => {
-  const response = await axios.get(`/api/file/get/:id`, { params: { id: id } });
+  const response = await axios.get(`${BACKEND_URL}/api/file/get/${id}`);
   return response.data;
 };
 
 const deleteFile = async (id: string) => {
-  const response = await axios.delete(`/api/file/delete/:id`, {
-    params: { id: id },
-  });
+  const response = await axios.delete(`${BACKEND_URL}/api/file/delete/${id}`);
   return response.data;
 };
 
 const renameFile = async (id: string, newName: string) => {
-  const response = await axios.put(`/api/file/rename/:id`, {
-    id: id,
-    newName: newName,
+  const response = await axios.put(`${BACKEND_URL}/api/file/rename/${id}`, {
+    label: newName,
   });
   return response.data;
 };
 
 const saveFile = async (id: string, FileContent: string) => {
-  const response = await axios.put(`/api/file/save/:id`, {
-    id: id,
+  const response = await axios.put(`${BACKEND_URL}/api/file/save/${id}`, {
     FileContent: FileContent,
   });
   return response.data;

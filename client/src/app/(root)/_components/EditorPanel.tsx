@@ -28,6 +28,8 @@ function EditorPanel() {
     (state) => state.setAssistantResponse
   );
 
+  const setEditor = useCodeEditorStore((state) => state.setEditor);
+
   useEffect(() => {
     if (!socket.connected) {
       socket.connect();
@@ -40,7 +42,7 @@ function EditorPanel() {
       socket.off("receive-changes", handleReceiveChanges);
       socket.disconnect();
     };
-  }, []);
+  }, [roomId]);
   const handleReceiveChanges = (data: string) => {
     updateEditorContent(data);
   };
@@ -48,6 +50,7 @@ function EditorPanel() {
     editor: monaco.editor.IStandaloneCodeEditor
   ) => {
     editorRef.current = editor;
+    setEditor(editor);
     if (pendingCodeRef.current) {
       isRemoteChange.current = true;
       editor.setValue(pendingCodeRef.current);
@@ -78,8 +81,14 @@ function EditorPanel() {
     debounce((value: string) => {
       socket.emit("code-change", { roomId, code: value });
     }, 500),
-    []
+    [roomId]
   );
+
+  useEffect(() => {
+    return () => {
+      emitCodeChange.cancel();
+    };
+  }, [emitCodeChange]);
   const handleChange = (value: string | undefined) => {
     if (isRemoteChange.current) {
       isRemoteChange.current = false;

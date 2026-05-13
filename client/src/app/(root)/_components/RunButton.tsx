@@ -14,22 +14,33 @@ import { usePathname } from "next/navigation";
 
 function RunButton() {
   const { user } = useUser();
-  const { runCode, isRunning } = useCodeEditorStore();
+  const runCode = useCodeEditorStore((state) => state.runCode);
+  const isRunning = useCodeEditorStore((state) => state.isRunning);
+  const getCode = useCodeEditorStore((state) => state.getCode);
   const pathName = usePathname();
   const roomId = pathName.split("/")[2];
   // const saveExecution = useMutation(api.codeExecutions.saveExecution);
 
   const handleRun = async () => {
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/getCode/`,
-      {
-        params: {
-          roomId: roomId,
-        },
-      }
-    );
+    let code = getCode();
 
-    runCode(response.data.data.currentCodeContent);
+    if (!code?.trim() && roomId) {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/getCode`,
+          {
+            params: {
+              roomId: roomId,
+            },
+          }
+        );
+        code = response.data?.data?.currentCodeContent || "";
+      } catch (error) {
+        console.log("Error fetching code for run:", error);
+      }
+    }
+
+    await runCode(code || "");
     const result = getExecutionResult();
 
     if (user && result) {

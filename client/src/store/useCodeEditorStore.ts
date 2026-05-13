@@ -75,6 +75,7 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
 
     runCode: async (code: string) => {
       const { language } = get();
+      console.log("Running code in language:", language); 
 
       if (!code) {
         set({ error: "Please enter some code" });
@@ -85,6 +86,7 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
 
       try {
         const runtime = LANGUAGE_CONFIG[language].pistonRuntime;
+        console.log("Running code with runtime:", runtime);
         const response = await fetch("https://emkc.org/api/v2/piston/execute", {
           method: "POST",
           headers: {
