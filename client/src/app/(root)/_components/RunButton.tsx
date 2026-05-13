@@ -6,7 +6,7 @@ import {
 } from "@/store/useCodeEditorStore";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
-// import { useMutation } from "convex/react";
+import { backendUrl } from "@/lib/env";
 import { motion } from "framer-motion";
 import { Loader2, Play } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -19,7 +19,6 @@ function RunButton() {
   const getCode = useCodeEditorStore((state) => state.getCode);
   const pathName = usePathname();
   const roomId = pathName.split("/")[2];
-  // const saveExecution = useMutation(api.codeExecutions.saveExecution);
 
   const handleRun = async () => {
     let code = getCode();
@@ -27,7 +26,7 @@ function RunButton() {
     if (!code?.trim() && roomId) {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/getCode`,
+          `${backendUrl}/api/getCode`,
           {
             params: {
               roomId: roomId,
@@ -44,12 +43,7 @@ function RunButton() {
     const result = getExecutionResult();
 
     if (user && result) {
-      // await saveExecution({
-      //   language,
-      //   code: result.code,
-      //   output: result.output || undefined,
-      //   error: result.error || undefined,
-      // });
+      // Placeholder for future execution persistence.
     }
   };
 

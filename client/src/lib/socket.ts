@@ -1,11 +1,26 @@
 "use client";
 import { io } from "socket.io-client";
-export const socket = io(`${process.env.NEXT_PUBLIC_BACKEND_URL}`);
+import { backendUrl } from "./env";
 
-socket.on("connect", () => {
-  console.log(socket.id);
+const socketUrl = backendUrl;
+export const socket = io(socketUrl, {
+  transports: ["websocket", "polling"],
+  timeout: 20000,
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000,
 });
 
-socket.on("disconnect", () => {
-  console.log("socket disconnected");
+console.log("[socket] init", socketUrl);
+
+socket.on("connect", () => {
+  console.log("[socket] connected", socket.id);
+});
+
+socket.on("disconnect", (reason) => {
+  console.log("[socket] disconnected", reason);
+});
+
+socket.on("connect_error", (error) => {
+  console.warn("[socket] connect_error", error?.message || error);
 });

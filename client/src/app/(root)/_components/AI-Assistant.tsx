@@ -6,6 +6,7 @@ import { useAssistantStore } from "@/store/useAssistantStore";
 import { useCodeEditorStore } from "@/store/useCodeEditorStore";
 import { RiRobot3Fill } from "react-icons/ri";
 import axios from "axios";
+import { backendUrl } from "@/lib/env";
 
 export default function AI() {
   const showAssistant = useAssistantStore((state) => state.showAssistant);
@@ -28,7 +29,7 @@ export default function AI() {
     setUserQuery(inputValue);
     setInputValue(""); // Clear the input
     const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/ai/ask-ai`,
+      `${backendUrl}/api/ai/ask-ai`,
       {
         prompt: inputValue,
         code: code,

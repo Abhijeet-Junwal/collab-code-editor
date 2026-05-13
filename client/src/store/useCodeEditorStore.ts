@@ -28,6 +28,19 @@ const getInitialState = () => {
 export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
   const initialState = getInitialState();
 
+  const JUDGE0_LANGUAGE_IDS: Record<string, number> = {
+    javascript: 63,
+    typescript: 74,
+    python: 71,
+    java: 62,
+    cpp: 54,
+    csharp: 51,
+    go: 60,
+    rust: 73,
+    ruby: 72,
+    swift: 83,
+  };
+
   return {
     ...initialState,
     output: "",
@@ -87,24 +100,38 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
       try {
         const runtime = LANGUAGE_CONFIG[language].pistonRuntime;
         console.log("Running code with runtime:", runtime);
-        const response = await fetch("https://emkc.org/api/v2/piston/execute", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            language: runtime.language,
-            version: runtime.version,
-            files: [{ content: code }],
-          }),
-        });
+
+        const languageId = JUDGE0_LANGUAGE_IDS[language];
+        if (!languageId) {
+          set({
+            error: "Selected language is not supported by the code runner",
+            executionResult: {
+              code,
+              output: "",
+              error: "Selected language is not supported by the code runner",
+            },
+          });
+          return;
+        }
+
+        const response = await fetch(
+          "https://ce.judge0.com/submissions?base64_encoded=false&wait=true",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              language_id: languageId,
+              source_code: code,
+            }),
+          }
+        );
 
         const data = await response.json();
+        console.log("data back from judge0:", data);
 
-        console.log("data back from piston:", data);
-
-        // handle API-level erros
-        if (data.message) {
+        if (data?.message) {
           set({
             error: data.message,
             executionResult: { code, output: "", error: data.message },
@@ -112,36 +139,37 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
           return;
         }
 
-        // handle compilation errors
-        if (data.compile && data.compile.code !== 0) {
-          const error = data.compile.stderr || data.compile.output;
+        const compileError = data?.compile_output;
+        const runtimeError = data?.stderr;
+        const statusDescription = data?.status?.description;
+        if (compileError || runtimeError) {
+          const errorText = [compileError, runtimeError, statusDescription]
+            .filter(Boolean)
+            .join("\n\n");
           set({
-            error,
+            error: errorText,
             executionResult: {
               code,
-              output: "",
-              error,
+              output: data?.stdout || "",
+              error: errorText,
             },
           });
           return;
         }
 
-        if (data.run && data.run.code !== 0) {
-          const error = data.run.stderr || data.run.output;
+        if (statusDescription && statusDescription !== "Accepted") {
           set({
-            error,
+            error: statusDescription,
             executionResult: {
               code,
-              output: "",
-              error,
+              output: data?.stdout || "",
+              error: statusDescription,
             },
           });
           return;
         }
 
-        // if we get here, execution was successful
-        const output = data.run.output;
-
+        const output = data?.stdout || "";
         set({
           output: output.trim(),
           error: null,

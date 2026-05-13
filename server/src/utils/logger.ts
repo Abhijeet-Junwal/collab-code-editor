@@ -1,7 +1,10 @@
 import { createLogger, format, transports } from "winston";
+import Transport from "winston-transport";
+import fs from "fs";
 import path from "path";
 
 const { combine, timestamp, printf, colorize } = format;
+const isProd = process.env.NODE_ENV === "production";
 
 // Custom format for console logging
 const consoleLogFormat = printf(({ level, message, timestamp }) => {
@@ -18,30 +21,39 @@ const fileLogFormat = combine(
 // Create logs directory path
 const logsDir = path.join(__dirname, "../../logs");
 
+// Ensure log directory exists for file transports.
+fs.mkdirSync(logsDir, { recursive: true });
+
 // Create a Winston logger
-const logger = createLogger({
-  level: "info",
-  transports: [
-    // Console transport with colors
+const loggerTransports: Transport[] = [
+  // File transport
+  new transports.File({
+    filename: path.join(logsDir, "app.log"),
+    format: fileLogFormat,
+  }),
+  // Error-only file transport
+  new transports.File({
+    filename: path.join(logsDir, "error.log"),
+    level: "error",
+    format: fileLogFormat,
+  }),
+];
+
+if (!isProd) {
+  loggerTransports.unshift(
     new transports.Console({
       format: combine(
         colorize(),
         timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
         consoleLogFormat
       ),
-    }),
-    // File transport
-    new transports.File({
-      filename: path.join(logsDir, "app.log"),
-      format: fileLogFormat,
-    }),
-    // Error-only file transport
-    new transports.File({
-      filename: path.join(logsDir, "error.log"),
-      level: "error",
-      format: fileLogFormat,
-    }),
-  ],
+    })
+  );
+}
+
+const logger = createLogger({
+  level: isProd ? "info" : "debug",
+  transports: loggerTransports,
   exceptionHandlers: [
     new transports.File({
       filename: path.join(logsDir, "exceptions.log"),

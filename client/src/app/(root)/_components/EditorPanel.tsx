@@ -6,19 +6,20 @@ import { socket } from "@/lib/socket";
 import { defineMonacoThemes, LANGUAGE_CONFIG } from "../_constants";
 import { Editor } from "@monaco-editor/react";
 import { motion } from "framer-motion";
-import { usePathname } from "next/navigation";
+import { useParams } from "next/navigation";
 import { RotateCcwIcon, TypeIcon } from "lucide-react";
 import { useClerk } from "@clerk/nextjs";
 import { EditorPanelSkeleton } from "./EditorPanelSkeleton";
 import useMounted from "@/hooks/useMounted";
 import { debounce } from "lodash";
 import axios from "axios";
+import { backendUrl } from "@/lib/env";
 import { useAssistantStore } from "@/store/useAssistantStore";
 import Image from "next/image";
 function EditorPanel() {
   const clerk = useClerk();
-  const pathName = usePathname();
-  const roomId = pathName.split("/")[2];
+  const params = useParams();
+  const roomId = typeof params?.roomid === "string" ? params.roomid : "";
   //for editor
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const pendingCodeRef = useRef<string | null>(null);
@@ -30,22 +31,55 @@ function EditorPanel() {
 
   const setEditor = useCodeEditorStore((state) => state.setEditor);
 
+  const handleReceiveChanges = useCallback((data: string) => {
+    updateEditorContent(data);
+  }, []);
+
   useEffect(() => {
+    if (!roomId) {
+      return;
+    }
     if (!socket.connected) {
       socket.connect();
     }
 
+    const handleConnect = () => {
+      console.log("[socket] connected", {
+        id: socket.id,
+        roomId,
+      });
+      socket.emit("join-room", { roomId: roomId }, (ack: any) => {
+        if (!ack?.ok) {
+          console.warn("[socket] join-room failed", ack?.error);
+          return;
+        }
+        console.log("[socket] join-room ok", roomId);
+      });
+    };
+
+    socket.on("connect", handleConnect);
     socket.on("receive-changes", handleReceiveChanges);
-    socket.emit("join-room", { roomId: roomId });
+    socket.on("disconnect", (reason) => {
+      console.warn("[socket] disconnect", reason);
+    });
+    socket.on("connect_error", (error) => {
+      console.warn("[socket] connect_error", error?.message || error);
+    });
+
+    // Join immediately if already connected.
+    if (socket.connected) {
+      handleConnect();
+    } else {
+      console.log("[socket] waiting for connect", { roomId });
+    }
 
     return () => {
+      socket.off("connect", handleConnect);
       socket.off("receive-changes", handleReceiveChanges);
-      socket.disconnect();
+      socket.off("disconnect");
+      socket.off("connect_error");
     };
-  }, [roomId]);
-  const handleReceiveChanges = (data: string) => {
-    updateEditorContent(data);
-  };
+  }, [roomId, handleReceiveChanges]);
   const handleEditorDidMount = (
     editor: monaco.editor.IStandaloneCodeEditor
   ) => {
@@ -66,7 +100,7 @@ function EditorPanel() {
       run: async (editor) => {
         const code = editor.getValue();
         const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/ai/ask-suggestion`,
+          `${backendUrl}/api/ai/ask-suggestion`,
           {
             code,
           }
@@ -79,6 +113,14 @@ function EditorPanel() {
   };
   const emitCodeChange = useCallback(
     debounce((value: string) => {
+      if (!roomId || !socket.connected) {
+        console.warn("[socket] skip emit", {
+          roomId,
+          connected: socket.connected,
+        });
+        return;
+      }
+      console.log("[socket] emit code-change", { roomId, length: value.length });
       socket.emit("code-change", { roomId, code: value });
     }, 500),
     [roomId]
@@ -91,10 +133,12 @@ function EditorPanel() {
   }, [emitCodeChange]);
   const handleChange = (value: string | undefined) => {
     if (isRemoteChange.current) {
+      console.log("[editor] ignore remote echo");
       isRemoteChange.current = false;
       return;
     }
     if (value !== undefined) {
+      console.log("[editor] local change", { length: value.length });
       emitCodeChange(value);
     }
   };
@@ -102,6 +146,7 @@ function EditorPanel() {
   const updateEditorContent = (newCode: string) => {
     const editor = editorRef.current;
     if (editor && editor.getValue() !== newCode) {
+      console.log("[editor] apply remote change", { length: newCode.length });
       const currentCode = editor.getValue();
       if (currentCode === newCode) return;
 
@@ -112,7 +157,7 @@ function EditorPanel() {
         editor.setPosition(currentPosition);
       }
     } else {
-      console.warn("❌ Editor not ready yet");
+      console.warn("[editor] not ready yet, caching remote change");
       pendingCodeRef.current = newCode;
     }
   };

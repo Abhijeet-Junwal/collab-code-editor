@@ -11,7 +11,7 @@ function LanguageSelector() {
   const [isOpen, setIsOpen] = useState(false);
   const mounted = useMounted();
 
-  const { language } = useCodeEditorStore();
+  const { language, setLanguage } = useCodeEditorStore();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const currentLanguageObj = LANGUAGE_CONFIG[language];
 
@@ -93,8 +93,6 @@ function LanguageSelector() {
 
             <div className="max-h-[280px] overflow-y-auto overflow-x-hidden">
               {Object.values(LANGUAGE_CONFIG).map((lang, index) => {
-                const isLocked = lang.id !== "javascript";
-
                 return (
                   <motion.div
                     key={lang.id}
@@ -111,10 +109,12 @@ function LanguageSelector() {
                           ? "bg-blue-500/10 text-blue-400"
                           : "text-gray-300"
                       }
-                      ${isLocked ? "opacity-50" : "hover:bg-[#262637]"}
+                      hover:bg-[#262637]
                     `}
-                      // onClick={() => handleLanguageSelect(lang.id)}
-                      disabled={isLocked}
+                      onClick={() => {
+                        setLanguage(lang.id);
+                        setIsOpen(false);
+                      }}
                     >
                       {/* decorator */}
                       <div

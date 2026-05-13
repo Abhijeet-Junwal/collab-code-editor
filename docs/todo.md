@@ -17,5 +17,5 @@
 ## Long-term
 - Add tests (unit/integration/e2e) and CI.
 - Improve logging/monitoring and log rotation; add metrics.
-- Document APIs and architecture; remove dead/commented code (Passwords.ts, Convex remnants).
+- Document APIs and architecture; remove dead/commented code (Passwords.ts).
 - Consider versioning/persistence improvements for code and file trees and add optimistic concurrency for socket updates.
