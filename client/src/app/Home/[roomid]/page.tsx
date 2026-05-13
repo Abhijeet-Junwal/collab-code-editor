@@ -1,7 +1,6 @@
 import EditorPanel from "../../(root)/_components/EditorPanel";
 import Header from "../../(root)/_components/Header";
 import OutputPanel from "../../(root)/_components/OutputPanel";
-import AI from "@/app/(root)/_components/AI-Assistant";
 
 export default async function Page({
   params,
@@ -18,7 +17,6 @@ export default async function Page({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <EditorPanel />
           <OutputPanel />
-          <AI />
         </div>
       </div>
     </div>

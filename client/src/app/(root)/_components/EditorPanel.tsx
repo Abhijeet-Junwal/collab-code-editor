@@ -17,6 +17,7 @@ import { backendUrl } from "@/lib/env";
 import { useAssistantStore } from "@/store/useAssistantStore";
 import Image from "next/image";
 function EditorPanel() {
+  const enableAI = process.env.NEXT_PUBLIC_ENABLE_AI === "true";
   const clerk = useClerk();
   const params = useParams();
   const roomId = typeof params?.roomid === "string" ? params.roomid : "";
@@ -91,25 +92,27 @@ function EditorPanel() {
       console.log("Flushed pending code on mount");
       pendingCodeRef.current = null;
     }
-    editor.addAction({
-      id: "myPaste",
-      label: "Ask AI for Suggestion",
-      precondition: undefined,
-      contextMenuGroupId: "MYPORTION",
-      contextMenuOrder: 1.5,
-      run: async (editor) => {
-        const code = editor.getValue();
-        const response = await axios.post(
-          `${backendUrl}/api/ai/ask-suggestion`,
-          {
-            code,
-          }
-        );
-        setShowAssistant(true);
-        setAssistantResponse(response.data.answer);
-        //         updateEditorContent(response.data.answer);
-      },
-    });
+    if (enableAI) {
+      editor.addAction({
+        id: "myPaste",
+        label: "Ask AI for Suggestion",
+        precondition: undefined,
+        contextMenuGroupId: "MYPORTION",
+        contextMenuOrder: 1.5,
+        run: async (editor) => {
+          const code = editor.getValue();
+          const response = await axios.post(
+            `${backendUrl}/api/ai/ask-suggestion`,
+            {
+              code,
+            }
+          );
+          setShowAssistant(true);
+          setAssistantResponse(response.data.answer);
+          //         updateEditorContent(response.data.answer);
+        },
+      });
+    }
   };
   const emitCodeChange = useCallback(
     debounce((value: string) => {
