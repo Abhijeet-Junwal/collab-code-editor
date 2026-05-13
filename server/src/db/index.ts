@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import "@dotenvx/dotenvx/config";
+import "../utils/env";
 
 const DB_NAME = process.env.DB_NAME;
 const MONGODB_URI = process.env.MONGODB_URI;

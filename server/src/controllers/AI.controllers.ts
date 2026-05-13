@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import Together from "together-ai";
 import asyncHandler from "../utils/asyncHandler";
-import "@dotenvx/dotenvx/config";
+import "../utils/env";
 
 const together = new Together();
 export const askAssistant = asyncHandler(
