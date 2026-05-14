@@ -180,3 +180,36 @@ function LanguageSelector() {
   );
 }
 export default LanguageSelector;
+
+/*
+ * ===========================================================================================
+ *                              NOTES — LanguageSelector.tsx
+ * ===========================================================================================
+ *
+ * PURPOSE: A custom dropdown component allowing users to switch the programming language of the editor.
+ * ROLE IN ARCHITECTURE: Frontend Component Layer. Mutates the `language` state in the `useCodeEditorStore`.
+ * 
+ * IMPORTS:
+ * - `useCodeEditorStore`: Zustand store.
+ * - `LANGUAGE_CONFIG`: Constants defining supported languages and their IDs/logos.
+ * - `framer-motion`: Used for dropdown animations.
+ * - `useMounted`: Hydration fix.
+ * 
+ * FUNCTION-BY-FUNCTION ANALYSIS:
+ * - `LanguageSelector()`
+ *   - Does: Renders a button displaying the currently active language. Clicking it toggles an animated dropdown menu (`isOpen` state).
+ * - `handleClickOutside` (in `useEffect`)
+ *   - Does: Detects if the user clicked outside the dropdown box to auto-close it.
+ * 
+ * HOW THIS FILE CONNECTS TO OTHER FILES:
+ * - Inbound: Rendered inside `Header.tsx`.
+ * - Outbound: Mutates state in `useCodeEditorStore.ts`.
+ * 
+ * DESIGN PATTERNS:
+ * - Custom Select UI: Replaces the native `<select>` element with a fully custom React component to allow for embedded images (logos) and animations.
+ * - Click-Outside Pattern: Attaches a global document listener to handle closing the popover, a standard pattern for custom overlays.
+ * 
+ * POTENTIAL INTERVIEW QUESTIONS:
+ * 1. Why do we need the `useMounted` hook here?
+ *    - Answer: The `useCodeEditorStore` initializes by reading from `localStorage` (a browser-only API). During Server-Side Rendering, the server doesn't know what the user's preferred language is. If the component renders immediately, it will cause a hydration mismatch. `useMounted` delays the render until the client takes over.
+ */

@@ -440,3 +440,32 @@ export const defineMonacoThemes = (monaco: Monaco) => {
 
 };
 
+/*
+ * ===========================================================================================
+ *                              NOTES — constants/index.ts
+ * ===========================================================================================
+ *
+ * PURPOSE: A central registry for all supported languages, their default code snippets, runtime configurations, and available Monaco themes.
+ * ROLE IN ARCHITECTURE: Frontend Config Layer. Acts as the static database for the editor UI.
+ * 
+ * IMPORTS:
+ * - `monaco-editor`: For type checking the `defineMonacoThemes` function.
+ * 
+ * FUNCTION-BY-FUNCTION ANALYSIS:
+ * - `LANGUAGE_CONFIG` (Object)
+ *   - Does: Maps language IDs (e.g., 'javascript') to configuration objects containing labels, logos, and `pistonRuntime` versions. Crucially, it provides a `defaultCode` string for each language showcasing array operations.
+ * - `THEMES, THEME_DEFINITIONS` (Objects)
+ *   - Does: Defines the color palette and syntax highlighting rules for custom Monaco themes (GitHub Dark, Monokai, Solarized).
+ * - `defineMonacoThemes(monaco)`
+ *   - Does: A utility function that iterates over `THEME_DEFINITIONS` and registers them with the Monaco editor instance before it mounts.
+ * 
+ * HOW THIS FILE CONNECTS TO OTHER FILES:
+ * - Inbound: Imported heavily by `EditorPanel.tsx`, `LanguageSelector.tsx`, and `ThemeSelector.tsx`.
+ * 
+ * DESIGN PATTERNS:
+ * - Configuration Object Pattern: Extracts all magic strings, default templates, and static data out of React components, making the UI logic cleaner and easier to extend (e.g., adding a new language only requires updating this file).
+ * 
+ * POTENTIAL INTERVIEW QUESTIONS:
+ * 1. Why define `defaultCode` for every language?
+ *    - Answer: It provides an immediate "wow" factor and a testable state for the user as soon as they select a language. Instead of a blank screen, they get a fully runnable script that demonstrates the platform works.
+ */

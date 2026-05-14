@@ -69,3 +69,33 @@ export function EditorViewSkeleton() {
     </div>
   );
 }
+
+/*
+ * ===========================================================================================
+ *                              NOTES — EditorPanelSkeleton.tsx
+ * ===========================================================================================
+ *
+ * PURPOSE: Provides loading placeholder UI (skeletons) for the Editor and Output panels.
+ * ROLE IN ARCHITECTURE: Frontend Component Layer / UX Optimization.
+ * 
+ * IMPORTS:
+ * - `Terminal`: Icon.
+ * 
+ * FUNCTION-BY-FUNCTION ANALYSIS:
+ * - `EditorPanelSkeleton()`
+ *   - Does: Renders a mockup of the Monaco editor interface using randomly sized width divs to simulate lines of code.
+ * - `OutputPanelSkeleton()`
+ *   - Does: Renders a mockup of the terminal/output section.
+ * - `EditorViewSkeleton()`
+ *   - Does: Wraps both skeletons together for the initial page load state.
+ * 
+ * HOW THIS FILE CONNECTS TO OTHER FILES:
+ * - Inbound: Used conditionally in `EditorPanel.tsx` (e.g., `!clerk.loaded && <EditorPanelSkeleton />`) and dynamically imported route loading states.
+ * 
+ * DESIGN PATTERNS:
+ * - Skeleton Loading Pattern: Prevents layout shift (Cumulative Layout Shift - CLS) and improves perceived performance by showing the user the exact shape of the UI before the heavy JS (like Monaco Editor) finishes executing.
+ * 
+ * POTENTIAL INTERVIEW QUESTIONS:
+ * 1. Why use inline styles with `Math.random()` for the skeleton line widths?
+ *    - Answer: It creates a ragged right edge that realistically mimics actual code blocks, rather than having uniform blocks that look like standard text placeholders.
+ */

@@ -131,3 +131,32 @@ function ThemeSelector() {
   );
 }
 export default ThemeSelector;
+
+/*
+ * ===========================================================================================
+ *                              NOTES — ThemeSelector.tsx
+ * ===========================================================================================
+ *
+ * PURPOSE: A custom dropdown to change the visual theme of the Monaco editor.
+ * ROLE IN ARCHITECTURE: Frontend Component Layer. Mutates the `theme` state in `useCodeEditorStore`.
+ * 
+ * IMPORTS:
+ * - `useCodeEditorStore`: Zustand store.
+ * - `THEMES`: Constant array of supported themes.
+ * - `framer-motion`: For animations.
+ * 
+ * FUNCTION-BY-FUNCTION ANALYSIS:
+ * - `ThemeSelector()`
+ *   - Does: Very similar logic to `LanguageSelector`. Manages an `isOpen` dropdown state, listens for outside clicks, and maps over the `THEMES` array to render options with their specific icons and accent colors.
+ * 
+ * HOW THIS FILE CONNECTS TO OTHER FILES:
+ * - Inbound: Rendered inside `Header.tsx`.
+ * - Outbound: Mutates `theme` in `useCodeEditorStore.ts`.
+ * 
+ * DESIGN PATTERNS:
+ * - Dictionary/Map Pattern for Icons: Uses the `THEME_ICONS` object to map a string ID (like "vs-dark") to a specific React component (`<Moon />`), keeping the rendering logic clean without massive switch statements.
+ * 
+ * POTENTIAL INTERVIEW QUESTIONS:
+ * 1. How does the theme change actually affect the Monaco editor?
+ *    - Answer: This component updates the `theme` string in the Zustand store. The `EditorPanel` component is subscribed to that store and passes the `theme` string as a prop to the `@monaco-editor/react` `<Editor>` component, which dynamically updates its internal CSS.
+ */

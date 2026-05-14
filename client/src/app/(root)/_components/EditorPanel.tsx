@@ -306,3 +306,46 @@ function EditorPanel() {
   );
 }
 export default EditorPanel;
+
+/*
+ * ===========================================================================================
+ *                              NOTES — EditorPanel.tsx
+ * ===========================================================================================
+ *
+ * PURPOSE: The core code editing interface. Embeds Monaco Editor, handles real-time WebSocket synchronization, and integrates AI context menus.
+ * ROLE IN ARCHITECTURE: Frontend Component Layer. The most complex component in the app, binding together Socket.io, Monaco Editor, Zustand state, and backend APIs.
+ * 
+ * IMPORTS:
+ * - `useCodeEditorStore`: Zustand store for language, theme, and execution state.
+ * - `@monaco-editor/react`: The React wrapper for the Monaco Editor (the core engine of VS Code).
+ * - `socket`: The singleton Socket.io instance.
+ * - `lodash/debounce`: Utility to rate-limit execution of rapid events.
+ * 
+ * FUNCTION-BY-FUNCTION ANALYSIS:
+ * - `useEffect` (Socket Initialization)
+ *   - Does: Connects to Socket.io and emits a `join-room` event based on the URL parameter (`roomId`). Listens for `receive-changes` from other users.
+ * - `handleReceiveChanges`
+ *   - Does: Triggers `updateEditorContent` when external code changes arrive via WebSocket.
+ * - `handleEditorDidMount`
+ *   - Does: Stores the raw Monaco instance in Zustand. If there was a pending remote code change before Monaco finished loading, it applies it immediately. Also injects a custom context menu action ("Ask AI for Suggestion") directly into the editor's right-click menu.
+ * - `emitCodeChange` (Debounced)
+ *   - Does: Emits `code-change` events over WebSocket. Wrapped in a 500ms debounce to prevent flooding the server with network requests on every keystroke.
+ * - `updateEditorContent(newCode)`
+ *   - Does: Applies incoming code from websockets. Uses `isRemoteChange` ref to prevent an infinite loop (where receiving a remote change triggers a local change event, which emits a socket, which bounces back).
+ * - `handleChange(value)`
+ *   - Does: Fired whenever the Monaco editor changes. If it's a remote change, it ignores it. If local, it calls `emitCodeChange`.
+ * 
+ * HOW THIS FILE CONNECTS TO OTHER FILES:
+ * - Inbound: Placed in the main room layout alongside the Header and Output panel.
+ * - Outbound: Interacts heavily with `socket.ts`, `useCodeEditorStore.ts`, and the AI API endpoints.
+ * 
+ * DESIGN PATTERNS:
+ * - Debouncing: Optimizes network throughput during rapid typing.
+ * - Event Echo Prevention (Flag Pattern): The `isRemoteChange.current` boolean is a classic pattern in real-time syncing to prevent circular echoing of state between clients.
+ * 
+ * POTENTIAL INTERVIEW QUESTIONS:
+ * 1. Why is `pendingCodeRef` necessary?
+ *    - Answer: Monaco Editor is a massive library that loads asynchronously. If a WebSocket message containing the current room's code arrives *before* Monaco has finished mounting to the DOM, calling `editor.setValue()` would crash. `pendingCodeRef` caches that early message and applies it safely in `handleEditorDidMount`.
+ * 2. Why use a `useRef` for `isRemoteChange` instead of a `useState` boolean?
+ *    - Answer: Updating `useState` triggers a React re-render, which is completely unnecessary here since this is just an internal logical flag. Furthermore, `useState` updates asynchronously, meaning the value might not be true by the time the very next synchronous code execution happens, causing a race condition in the echo prevention logic.
+ */

@@ -167,3 +167,39 @@ export default function AI() {
     </div>
   );
 }
+
+/*
+ * ===========================================================================================
+ *                              NOTES — AI-Assistant.tsx
+ * ===========================================================================================
+ *
+ * PURPOSE: Renders a collapsible, resizable AI chat sidebar allowing users to ask questions about their code.
+ * ROLE IN ARCHITECTURE: Frontend Component Layer. Integrates the `useAssistantStore` UI state with the backend AI API.
+ * 
+ * IMPORTS:
+ * - `framer-motion`: For smooth slide-in/slide-out and hover animations.
+ * - `useAssistantStore, useCodeEditorStore`: Zustand stores to access current UI state and the actual code content.
+ * - `axios`: To make HTTP requests to the backend AI endpoints.
+ * 
+ * FUNCTION-BY-FUNCTION ANALYSIS:
+ * - `AI()` (Main Component)
+ *   - Does: Renders a floating Action Button (FAB) when closed, and a resizable sidebar when opened.
+ * - `handleSubmit(e)`
+ *   - Does: Prevents default form submit, clears input, and POSTs the user query + current code context to `/api/ai/ask-ai`. Updates the store with the AI's response.
+ * - `useEffect` (Resizing Logic)
+ *   - Does: Attaches `mousemove` and `mouseup` event listeners to the `window` when the user clicks the drag handle. Calculates new width based on mouse X coordinate. If dragged too small (<250px), it auto-closes the assistant.
+ * 
+ * HOW THIS FILE CONNECTS TO OTHER FILES:
+ * - Inbound: Rendered as a global floating element inside a layout or specific room page.
+ * - Outbound: Calls `backendUrl/api/ai/ask-ai` directly.
+ * 
+ * DESIGN PATTERNS:
+ * - Floating Overlay Pattern: Exists outside the normal document flow (`fixed z-50`), ensuring it doesn't disrupt the editor layout when opened.
+ * - Controlled Resizability: Implements custom drag-to-resize logic rather than relying on heavy third-party libraries.
+ * 
+ * POTENTIAL INTERVIEW QUESTIONS:
+ * 1. Why attach the `mousemove` event to the `window` instead of the drag handle itself?
+ *    - Answer: If you move your mouse too fast, the cursor can leave the bounds of a small drag handle. If the event listener is only on the handle, it will stop firing, breaking the resize functionality. Attaching it to the `window` ensures the drag continues no matter how fast the mouse moves.
+ * 2. Why use Framer Motion's `<AnimatePresence>`?
+ *    - Answer: In React, when a component is removed from the DOM (like conditionally rendering `showAssistant && <Sidebar/>`), it disappears instantly. `<AnimatePresence>` allows components to execute their `exit` animation before React actually unmounts them from the DOM.
+ */

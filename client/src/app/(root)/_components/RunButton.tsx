@@ -88,3 +88,36 @@ function RunButton() {
   );
 }
 export default RunButton;
+
+/*
+ * ===========================================================================================
+ *                              NOTES — RunButton.tsx
+ * ===========================================================================================
+ *
+ * PURPOSE: A button that triggers code execution. It fetches the latest code if necessary and dispatches the run action.
+ * ROLE IN ARCHITECTURE: Frontend Component Layer. The primary action trigger for the Judge0/Piston API pipeline.
+ * 
+ * IMPORTS:
+ * - `useCodeEditorStore`: Actions to run the code.
+ * - `axios`, `backendUrl`: To fetch code from MongoDB if it's missing from local state.
+ * - `useUser`: Clerk auth state.
+ * 
+ * FUNCTION-BY-FUNCTION ANALYSIS:
+ * - `handleRun()`
+ *   - Does: 
+ *     1. Gets code from the local editor store.
+ *     2. FALLBACK: If local code is empty (e.g., someone else typed it and the local user just joined/refreshed without typing), it makes an HTTP GET to `/api/getCode` to fetch the room's current code from the database.
+ *     3. Calls the `runCode` Zustand action to execute it.
+ *     4. (Placeholder) If the user is logged in, it prepares to save the execution result.
+ * 
+ * HOW THIS FILE CONNECTS TO OTHER FILES:
+ * - Inbound: Placed in the `Header.tsx`.
+ * - Outbound: Calls Zustand's `runCode` which calls Judge0. Also calls the backend `/api/getCode`.
+ * 
+ * DESIGN PATTERNS:
+ * - Fallback / Defensive Programming: The button doesn't just assume the code is in local state. It actively verifies and fetches the authoritative state from the server if local state is empty, ensuring a collaborative user doesn't accidentally run "nothing".
+ * 
+ * POTENTIAL INTERVIEW QUESTIONS:
+ * 1. Why might `getCode()` be empty even if there is code on the screen?
+ *    - Answer: In a collaborative environment, if User A writes the code, User B's local Monaco instance might display it via WebSockets, but depending on how the Zustand state synchronizes, the *local storage cache* or *direct editor reference* might not be perfectly aligned at the exact millisecond. The fallback ensures the button is fault-tolerant.
+ */

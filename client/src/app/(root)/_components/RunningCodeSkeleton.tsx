@@ -15,3 +15,28 @@ const RunningCodeSkeleton = () => (
 );
 
 export default RunningCodeSkeleton;
+
+/*
+ * ===========================================================================================
+ *                              NOTES — RunningCodeSkeleton.tsx
+ * ===========================================================================================
+ *
+ * PURPOSE: A simple skeleton loader displaying while code is executing on the remote server.
+ * ROLE IN ARCHITECTURE: Frontend Component Layer / UX Optimization.
+ * 
+ * IMPORTS: None.
+ * 
+ * FUNCTION-BY-FUNCTION ANALYSIS:
+ * - `RunningCodeSkeleton()`
+ *   - Does: Renders several animated (`animate-pulse`) divs resembling lines of text to indicate processing.
+ * 
+ * HOW THIS FILE CONNECTS TO OTHER FILES:
+ * - Inbound: Rendered conditionally inside `OutputPanel.tsx` when `isRunning === true`.
+ * 
+ * DESIGN PATTERNS:
+ * - Skeleton Loading Pattern: See `EditorPanelSkeleton.tsx`.
+ * 
+ * POTENTIAL INTERVIEW QUESTIONS:
+ * 1. Why use Tailwind's `animate-pulse` here?
+ *    - Answer: `animate-pulse` applies a subtle CSS opacity animation that signals to the user that the system is actively working (waiting for a response), rather than frozen or broken.
+ */

@@ -100,3 +100,37 @@ function OutputPanel() {
 }
 
 export default OutputPanel;
+
+/*
+ * ===========================================================================================
+ *                              NOTES — OutputPanel.tsx
+ * ===========================================================================================
+ *
+ * PURPOSE: Displays the result (stdout/stderr) of the executed code or execution errors.
+ * ROLE IN ARCHITECTURE: Frontend Component Layer. Consumes the `output` and `error` state from the code runner.
+ * 
+ * IMPORTS:
+ * - `useCodeEditorStore`: To read `output`, `error`, and `isRunning`.
+ * - `RunningCodeSkeleton`: Loading state component.
+ * - Icons from `lucide-react`.
+ * 
+ * FUNCTION-BY-FUNCTION ANALYSIS:
+ * - `OutputPanel()`
+ *   - Does: Subscribes to the code editor store. Conditionally renders one of four states: 
+ *     1. Running (Skeleton)
+ *     2. Error (Red text with Alert icon)
+ *     3. Success (Green text with Check icon)
+ *     4. Idle (Empty state instruction)
+ * - `handleCopy()`
+ *   - Does: Copies the current output/error to the system clipboard and temporarily changes the button state to "Copied!".
+ * 
+ * HOW THIS FILE CONNECTS TO OTHER FILES:
+ * - Inbound: Placed below or beside the EditorPanel in the main layout.
+ * 
+ * DESIGN PATTERNS:
+ * - State-Driven UI: The UI is a pure reflection of the Zustand state, requiring no local logic to determine *what* to display, only *how* to display it.
+ * 
+ * POTENTIAL INTERVIEW QUESTIONS:
+ * 1. How is `setTimeout` used in the `handleCopy` function?
+ *    - Answer: It's used to reset the `isCopied` state back to `false` after 2 seconds. This creates the familiar UX pattern where a copy button briefly turns into a checkmark to confirm the action, then reverts to its original state so it can be clicked again.
+ */

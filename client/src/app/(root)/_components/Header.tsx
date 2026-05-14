@@ -82,3 +82,31 @@ async function Header() {
   );
 }
 export default Header;
+
+/*
+ * ===========================================================================================
+ *                              NOTES — Header.tsx
+ * ===========================================================================================
+ *
+ * PURPOSE: The secondary header specific to the actual Editor Room interface (not the main landing page navigation).
+ * ROLE IN ARCHITECTURE: Frontend Component Layer. Contains controls that directly affect the Editor context (Language, Theme, Run button).
+ * 
+ * IMPORTS:
+ * - Selectors and Buttons (`ThemeSelector`, `LanguageSelector`, `RunButton`).
+ * - Auth components from Clerk.
+ * 
+ * FUNCTION-BY-FUNCTION ANALYSIS:
+ * - `Header()`
+ *   - Does: Renders a glassmorphic bar. Left side shows branding and a link to open a new room. Right side houses the dropdowns for Editor config and the main Run/Execute button.
+ *   - Returns: JSX Element.
+ * 
+ * HOW THIS FILE CONNECTS TO OTHER FILES:
+ * - Inbound: Rendered inside the specific room layout (`/Home/[roomId]/page.tsx` or similar).
+ * 
+ * DESIGN PATTERNS:
+ * - Composition: The Header itself has no state. It delegates all state management to its child components (`ThemeSelector`, `LanguageSelector`), keeping the component tree clean.
+ * 
+ * POTENTIAL INTERVIEW QUESTIONS:
+ * 1. Why use `target="_blank"` and `rel="noopener noreferrer"` on the "Create or Join another Room" link?
+ *    - Answer: `target="_blank"` opens the link in a new tab, so the user doesn't accidentally leave their active collaboration session. `rel="noopener noreferrer"` is a security best practice that prevents the newly opened tab from accessing the `window.opener` object of the original tab, preventing potential malicious redirects.
+ */
