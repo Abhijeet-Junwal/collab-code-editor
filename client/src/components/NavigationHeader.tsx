@@ -80,3 +80,33 @@ function NavigationHeader() {
 }
 
 export default NavigationHeader;
+
+/*
+ * ===========================================================================================
+ *                              NOTES — NavigationHeader.tsx
+ * ===========================================================================================
+ *
+ * PURPOSE: The main top navigation bar for the application.
+ * ROLE IN ARCHITECTURE: Frontend Component Layer. Provides branding, links to snippets, premium upgrade paths, and user profile management.
+ * 
+ * IMPORTS:
+ * - `HeaderProfileBtn`: Custom component (presumably handles user avatars/menus).
+ * - `SignedOut` from `@clerk/nextjs`: Conditionally renders children if the user is NOT logged in.
+ * - `Link`: Next.js router.
+ * - Icons from `lucide-react`.
+ * 
+ * FUNCTION-BY-FUNCTION ANALYSIS:
+ * - `NavigationHeader()`
+ *   - Does: Renders a sticky glassmorphism header. Contains the Logo (left), Snippets link, and Auth/Profile section (right).
+ *   - Returns: JSX Element.
+ * 
+ * HOW THIS FILE CONNECTS TO OTHER FILES:
+ * - Inbound: Intended to be used in layouts (like `layout.tsx`) or main pages.
+ * 
+ * DESIGN PATTERNS:
+ * - Conditional Rendering via Auth State: Uses Clerk's `<SignedOut>` to only show the "Pro" upgrade button to users who aren't fully authenticated yet (or based on business logic).
+ * 
+ * POTENTIAL INTERVIEW QUESTIONS:
+ * 1. How does the `sticky` and `backdrop-blur` CSS combination improve UX?
+ *    - Answer: `sticky top-0` keeps the navigation accessible at all times while scrolling. `backdrop-blur` ensures that content scrolling underneath the header remains partially visible, creating depth and a premium "glass" aesthetic.
+ */
